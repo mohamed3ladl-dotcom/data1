@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بنك أسئلة نظم المعلومات التسويقية</title>
+    <style>
+        :root { --p: #2c3e50; --s: #3498db; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 15px; }
+        .card { max-width: 800px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .btn { padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: 0.2s; }
+        .btn-ch { background: var(--p); color: white; }
+        .btn-all { background: #d35400; color: white; grid-column: span 2; }
+        .btn:hover { opacity: 0.8; transform: scale(0.98); }
+        .opt { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; text-align: right; }
+        .correct { background: #27ae60 !important; color: white; border-color: #27ae60; }
+        .wrong { background: #e74c3c !important; color: white; border-color: #e74c3c; }
+        .hidden { display: none; }
+        #hint { background: #e8f4fd; padding: 15px; border-right: 4px solid var(--s); margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="card" id="menu-view">
+    <h2 style="text-align: center; color: var(--p);">اختبارات نظم المعلومات التسويقية </h2>
+    <div class="menu-grid">
+        <button class="btn btn-ch" onclick="startQuiz('p1')">نظم معلومات ادارية </button>
+        <button class="btn btn-ch" onclick="startQuiz('p2')">المعلومات والبيانات </button>
+        <button class="btn btn-ch" onclick="startQuiz('p3')">نظم معلومات التسويق</button>
+        <button class="btn btn-ch" onclick="startQuiz('p4')">نظم معلومات الموارد البشرية </button>
+        <button class="btn btn-ch" onclick="startQuiz('p5')">البيانات الضخمة </button>
+        <button class="btn btn-ch" onclick="startQuiz('p6')">ادارة المعرفة وادارة الجهل </button>
+        <button class="btn btn-ch" onclick="startQuiz('p7')">اتخاذ القرار </button>
+        <button class="btn btn-ch" onclick="startQuiz('p8')">نظم دعم القرار </button>
+        <button class="btn btn-all" onclick="startQuiz('all')">🏆 الاختبار الشامل (200 سؤال)</button>
+    </div>
+</div>
+
+<div class="card hidden" id="quiz-view">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <button onclick="location.reload()" style="background:none; border:none; color:red; cursor:pointer;">✖ إنهاء</button>
+        <div id="progress"></div>
+    </div>
+    <h3 id="question-text" style="margin: 20px 0;"></h3>
+    <div id="options-box"></div>
+    <div id="hint" class="hidden"></div>
+    <button id="next-btn" onclick="nextQ()" class="btn btn-ch hidden" style="width: 100%; margin-top: 20px;">السؤال التالي</button>
+</div>
+
+<script src="chapter1.js"></script>
+<script src="chapter2.js"></script>
+<script src="chapter3.js"></script>
+<script src="chapter4.js"></script>
+<script src="chapter5.js"></script>
+<script src="chapter6.js"></script>
+<script src="chapter7.js"></script>
+<script src="chapter8.js"></script>
+
+
+
+<script>
+    let currentQuestions = [];
+    let idx = 0;
+    let score = 0;
+
+    function startQuiz(type) {
+        if(type === 'p1') currentQuestions = [...chapter1];
+        else if(type === 'p2') currentQuestions = [...chapter2];
+        else if(type === 'p3') currentQuestions = [...chapter3];
+        else if(type === 'p4') currentQuestions = [...chapter4];
+        else if(type === 'p5') currentQuestions = [...chapter5];
+        else if(type === 'p6') currentQuestions = [...chapter6];
+        else if(type === 'p7') currentQuestions = [...chapter7];
+        else if(type === 'p8') currentQuestions = [...chapter8];
+
+        else currentQuestions = [...chapter1, ...chapter2, ...chapter3, ...chapter4, ...chapter5, ...chapter6, ...chapter7, ...chapter8];
+
+        currentQuestions.sort(() => Math.random() - 0.5);
+        document.getElementById('menu-view').classList.add('hidden');
+        document.getElementById('quiz-view').classList.remove('hidden');
+        showQ();
+    }
+
+    function showQ() {
+        const q = currentQuestions[idx];
+        document.getElementById('progress').innerText = `سؤال ${idx + 1} / ${currentQuestions.length}`;
+        document.getElementById('question-text').innerText = q.q;
+        document.getElementById('hint').classList.add('hidden');
+        document.getElementById('next-btn').classList.add('hidden');
+        
+        const box = document.getElementById('options-box');
+        box.innerHTML = '';
+        
+        q.o.forEach((option, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'opt';
+            btn.innerText = option;
+            btn.onclick = () => {
+                if(!document.getElementById('next-btn').classList.contains('hidden')) return;
+                if(i === q.a) { btn.classList.add('correct'); score++; }
+                else { btn.classList.add('wrong'); box.children[q.a].classList.add('correct'); }
+                document.getElementById('hint').innerHTML = `<b>التفسير:</b> ${q.h}`;
+                document.getElementById('hint').classList.remove('hidden');
+                document.getElementById('next-btn').classList.remove('hidden');
+            };
+            box.appendChild(btn);
+        });
+    }
+
+    function nextQ() {
+        idx++;
+        if(idx < currentQuestions.length) showQ();
+        else alert(`انتهى الاختبار! النتيجة: ${score} من ${currentQuestions.length}`);
+    }
+</script>
+</body>
+</html>
